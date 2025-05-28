@@ -1,7 +1,7 @@
 import os
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls
-from pytgcalls.types.input_stream import InputAudioStream, InputStream
+from pytgcalls.types import AudioPiped
 from pytgcalls.types.input_stream.quality import HighQualityAudio
 
 API_ID = int(os.getenv("TG_API_ID"))
@@ -20,15 +20,13 @@ async def control(client, message):
         if os.path.exists(filepath):
             await pytgcalls.join_group_call(
                 GROUP_ID,
-                InputStream(
-                    InputAudioStream(filepath, HighQualityAudio())
-                )
+                AudioPiped(filepath, HighQualityAudio())
             )
-            await message.reply("🎵 در حال پخش: " + filename)
+            await message.reply(f"🎵 در حال پخش: {filename}")
         else:
             await message.reply("❌ موزیک یافت نشد.")
 
 app.start()
 pytgcalls.start()
-print("🎶 Music player is ready")
-input("Press Enter to exit...\\n")
+print("🎧 Music player is running...")
+input("Press Enter to stop...\n")
