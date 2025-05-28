@@ -2,7 +2,7 @@ pyrogram==2.0.106
 tgcrypto==1.2.5
 yt-dlp
 aiohttp
-git+https://github.com/Rabtin/pytgcalls.git@audio-piped-patch
+git+https://github.com/amiramini-dev/pytgcalls.git@audio-piped
 
 
 
