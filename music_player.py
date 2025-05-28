@@ -1,7 +1,8 @@
 from pyrogram import Client
-from py_tgcalls import PyTgCalls
-from py_tgcalls.types import Update
-from py_tgcalls.types.input_stream import AudioPiped
+from pytgcalls import PyTgCalls
+from pytgcalls.types import Update
+from pytgcalls.types.input_stream import AudioPiped
+
 from yt_dlp import YoutubeDL
 
 # کانفیگ
