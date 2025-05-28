@@ -1,70 +1,30 @@
-import asyncio
 from pyrogram import Client, filters
-from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_stream import AudioPiped
-from pytgcalls.types.stream import StreamType
-from yt_dlp import YoutubeDL
+from pytgcalls import PyTgCalls
+from pytgcalls.types.input_stream.raw import RawAudio
+import asyncio
 
-API_ID = int(os.environ.get("API_ID"))
-API_HASH = os.environ.get("API_HASH")
-TG_SESSION = os.environ.get("TG_SESSION")  # session string
+API_ID = int("YOUR_API_ID")
+API_HASH = "YOUR_API_HASH"
+SESSION_STRING = "YOUR_SESSION_STRING"  # با Pyrogram session بساز
 
-app = Client(
-    TG_SESSION,
-    api_id=API_ID,
-    api_hash=API_HASH
-)
-
+app = Client(session_name=SESSION_STRING, api_id=API_ID, api_hash=API_HASH)
 call = PyTgCalls(app)
 
-DOWNLOADS_PATH = "downloads"
-os.makedirs(DOWNLOADS_PATH, exist_ok=True)
+@app.on_message(filters.command("join") & filters.group)
+async def join_call(client, message):
+    await call.join_group_call(
+        chat_id=message.chat.id,
+        stream=RawAudio(file_path="test.raw")
+    )
 
-
-def download_audio(query):
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': f'{DOWNLOADS_PATH}/song.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-        }]
-    }
-    with YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(f"ytsearch:{query}", download=True)
-        return f"{DOWNLOADS_PATH}/song.mp3"
-
-
-@app.on_message(filters.command("play") & filters.private)
-async def play_handler(client, message):
-    if len(message.command) < 2:
-        await message.reply("مثال: /play هایده")
-        return
-
-    query = " ".join(message.command[1:])
-    await message.reply(f"در حال دانلود {query} از YouTube...")
-
-    audio_path = download_audio(query)
-    await message.reply("دانلود شد. در حال پیوستن به تماس صوتی...")
-
-    chat_id = message.chat.id
-    await call.join_group_call(chat_id, AudioPiped(audio_path))
-    await message.reply("در حال پخش 🎶")
-
-
-@app.on_message(filters.command("stop") & filters.private)
-async def stop_handler(client, message):
+@app.on_message(filters.command("leave") & filters.group)
+async def leave_call(client, message):
     await call.leave_group_call(message.chat.id)
-    await message.reply("⏹ پخش متوقف شد")
-
 
 async def main():
     await app.start()
     await call.start()
-    print("ربات موسیقی آماده است.")
-    await app.idle()
+    print("Bot is running...")
+    await asyncio.get_event_loop().create_future()
 
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+asyncio.run(main())
