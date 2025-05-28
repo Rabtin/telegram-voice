@@ -1,9 +1,11 @@
 import os
 import asyncio
 from pyrogram import Client, filters
-from pyrogram.types import Message
 from pytgcalls import PyTgCalls
-from pytgcalls.types.input_stream import InputStream, InputAudioStream
+from pytgcalls.types import Update
+from pytgcalls.types.input_stream.input_stream import InputStream
+from pytgcalls.types.input_stream.input_audio_stream import InputAudioStream
+from pytgcalls.types.stream import StreamAudioEnded
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.getenv("TG_API_ID"))
