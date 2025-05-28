@@ -3,8 +3,8 @@ import asyncio
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls
 from pytgcalls.types import Update
-from pytgcalls.types.input_stream import InputStream, InputAudioStream
 from pytgcalls.types.stream import StreamAudioEnded
+from pytgcalls.types.input_stream import AudioPiped
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.getenv("TG_API_ID"))
