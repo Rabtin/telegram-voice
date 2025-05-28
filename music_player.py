@@ -1,30 +1,39 @@
-from pyrogram import Client, filters
-from pytgcalls import PyTgCalls
-from pytgcalls.types.input_stream.raw import RawAudio
-import asyncio
+from pyrogram import Client
+from py_tgcalls import PyTgCalls
+from py_tgcalls.types import Update
+from py_tgcalls.types.input_stream import AudioPiped
+from yt_dlp import YoutubeDL
 
+# کانفیگ
 API_ID = int("YOUR_API_ID")
 API_HASH = "YOUR_API_HASH"
 SESSION_STRING = "YOUR_SESSION_STRING"  # با Pyrogram session بساز
 
+
 app = Client(session_name=SESSION_STRING, api_id=API_ID, api_hash=API_HASH)
-call = PyTgCalls(app)
+pytgcalls = PyTgCalls(app)
 
-@app.on_message(filters.command("join") & filters.group)
-async def join_call(client, message):
-    await call.join_group_call(
-        chat_id=message.chat.id,
-        stream=RawAudio(file_path="test.raw")
-    )
+@app.on_message()
+async def play_audio(client, message):
+    if message.text.startswith("پخش "):
+        url = message.text.split("پخش ", 1)[1]
 
-@app.on_message(filters.command("leave") & filters.group)
-async def leave_call(client, message):
-    await call.leave_group_call(message.chat.id)
+        with YoutubeDL({'format': 'bestaudio'}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            audio_url = info['url']
 
-async def main():
-    await app.start()
-    await call.start()
+        await pytgcalls.join_group_call(
+            chat_id=message.chat.id,
+            stream=AudioPiped(audio_url)
+        )
+
+@pytgcalls.on_stream_end()
+async def stream_end_handler(client: PyTgCalls, update: Update):
+    await client.leave_group_call(update.chat_id)
+
+if __name__ == "__main__":
+    app.start()
+    pytgcalls.start()
     print("Bot is running...")
-    await asyncio.get_event_loop().create_future()
-
-asyncio.run(main())
+    import asyncio
+    asyncio.get_event_loop().run_forever()
